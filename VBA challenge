@@ -1,0 +1,100 @@
+Sub testing()
+
+'declare variables
+Dim activeS, lastRow, symbol, openP, closeP, yearChange, percentC, totVol, i, counter
+Dim ws As Worksheet
+
+
+For Each ws In Worksheets
+ws.Activate
+
+'set up the tables to recieve the data
+
+    Cells(1, 9) = "Ticker"
+    Cells(1, 10) = "Yearly Change"
+    Cells(1, 11) = "Percentage Change"
+    Cells(1, 12) = "Total Volume"
+
+    Cells(2, 15) = "Greatest Percent Increase"
+    Cells(3, 15) = "Greatest Percent Decrease"
+    Cells(4, 15) = "Greatest Total Volume"
+    Cells(1, 16) = "Ticker"
+    Cells(1, 17) = "Value"
+
+'get variables prepared to recieve data
+
+    Set activeS = ActiveSheet
+    lastRow = activeS.Cells(activeS.Rows.Count, "A").End(xlUp).Row
+
+    symbol = " "
+    startD = activeS.Cells(2, 2).Value
+    openP = activeS.Cells(2, 3).Value
+    totVol = 0
+    counter = 2
+
+
+'set up loops to get data
+For i = 2 To lastRow
+
+    If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+        symbol = Cells(i, 1).Value
+        totVol = totVol + Cells(i, 7).Value
+        Range("I" & counter).Value = symbol
+        Range("L" & counter).Value = totVol
+        closeP = Cells(i, 6).Value
+        yearChange = (closeP - openP)
+        Range("J" & counter).Value = yearChange
+    
+        
+        percentC = (yearChange / openP)
+        Range("K" & counter).Value = percentC
+        counter = counter + 1
+        
+        openP = Cells(i + 1, 3)
+    
+        totVol = 0
+        
+        
+         Else
+         totVol = totVol + Cells(i, 7).Value
+    
+    
+         End If
+    
+    Next i
+    
+    'format cells conditionally
+      For i = 2 To lastRow
+            If Cells(i, 10).Value > 0 Then
+                Cells(i, 10).Interior.ColorIndex = 10
+            Else
+                Cells(i, 10).Interior.ColorIndex = 3
+            End If
+        Next i
+    
+'to get the max increase & min increase & max volume
+
+ For i = 2 To lastRow
+            If Cells(i, 11).Value = Application.WorksheetFunction.Max(Range("K2:K" & lastRow)) Then
+                Cells(2, 16).Value = Cells(i, 9).Value
+                Cells(2, 17).Value = Cells(i, 11).Value
+                Cells(2, 17).NumberFormat = "0.00%"
+
+            ElseIf Cells(i, 11).Value = Application.WorksheetFunction.Min(Range("K2:K" & lastRow)) Then
+                Cells(3, 16).Value = Cells(i, 9).Value
+                Cells(3, 17).Value = Cells(i, 11).Value
+                Cells(3, 17).NumberFormat = "0.00%"
+            
+            ElseIf Cells(i, 12).Value = Application.WorksheetFunction.Max(Range("L2:L" & lastRow)) Then
+                Cells(4, 16).Value = Cells(i, 9).Value
+                Cells(4, 17).Value = Cells(i, 12).Value
+            
+            End If
+        
+        Next i
+        
+Next ws
+
+
+End Sub
+
